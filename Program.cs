@@ -45,18 +45,21 @@ namespace Notes
                     case (int)Lop.CreateNote:
                         CreateFile();
                         break;
-                    
+
                     case (int)Lop.ShowListNotes:
                         ShowNotes(fileNotes);
                         break;
 
                     case (int)Lop.ReadingNote:
+                        ReadNote();
                         break;
 
                     case (int)Lop.EditingNote:
+                        ChangeNote(fileNotes);
                         break;
 
                     case (int)Lop.DeleteNote:
+                        DeleteNote();
                         break;
 
                     case (int)Lop.Exit:
@@ -64,6 +67,7 @@ namespace Notes
                 }
             }
         }
+
 
         // Функция проверяет существует такой файл или нет, если он существует то фунция выводит соответсвующий текст, если такого файла нет то
         // функция его создает и создает внутри него такой же заголовок.
@@ -81,7 +85,7 @@ namespace Notes
             }
             else
             {
-                
+
                 File.Create(filePath).Close();
                 File.WriteAllText(filePath, nameNote);
                 StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
@@ -122,7 +126,7 @@ namespace Notes
         static private void ReadNote()
         {
             Console.Write("Введите название файла который хотите прочитать: ");
-            string nameNote = CheckForbiddenChars();
+            string? nameNote = CheckForbiddenChars();
             string? textNote = " ";
             try
             {
@@ -141,7 +145,7 @@ namespace Notes
             }
             finally
             {
-                Console.WriteLine("Executing finally block.");
+
             }
         }
 
@@ -151,9 +155,16 @@ namespace Notes
         /// </summary>
         /// <param name="name"></param>
         /// <param name="path"></param>
-        static private void ChangeNote(string name, string path)
+        static private void ChangeNote(string path)
         {
-            TextReader reader = new StreamReader(path);
+
+            Console.Write("Введите название вашего файла: ");
+            string? name = CheckForbiddenChars();
+            string notePath = path + "\\" + name + ".txt";
+
+
+
+            TextReader reader = new StreamReader(notePath);
             string contents = reader.ReadToEnd();
             reader.Close();
             Console.Write("Содержимое файла: ");
@@ -163,14 +174,14 @@ namespace Notes
             while (true)
             {
                 Console.WriteLine("Если вы хотите ввести новый текст то введите да если хотите оставить старый текст то введите нет: ");
-                string? keyWord = CheckForbiddenChars();
+                string? keyWord = Console.ReadLine();
 
                 if (keyWord == "да" || keyWord == "Да")
                 {
                     // Полностью перезаписываю выбранный файл.
                     try
                     {
-                        StreamWriter writeFile = new StreamWriter(path, false, Encoding.Unicode);
+                        StreamWriter writeFile = new StreamWriter(notePath, false, Encoding.UTF8);
                         Console.Write("Введите ваш текст: ");
                         string? userWords = Console.ReadLine();
                         writeFile.WriteLine(userWords);
@@ -193,39 +204,18 @@ namespace Notes
                 }
             }
         }
-        /// <summary>
-        /// Поиск файла заметки в каталоге
-        /// </summary>
-        /// <returns></returns>
-        static private string? LookForFile()
-        {
-            while (true)
-            {
-                Console.Write("Введите название файла: ");
-                string? nameNote = CheckForbiddenChars();
-                string pathNotes = "C:\\Notes" + "\\" + nameNote + ".txt";
 
-                if (File.Exists(pathNotes))
-                {
-                    Console.WriteLine("найден");
-                    return pathNotes;
-                }
-                else
-                {
-                    Console.WriteLine("Такого файла не существует");
-                    continue;
-                }
-            }
-        }
+
         /// <summary>
         /// Функция на недопустимость символов в имени заметки, в содержимом заметки, и в любом вводе
         /// </summary>
         /// <returns></returns>
         static private string? CheckForbiddenChars()
         {
-            string? userInput = Console.ReadLine();
+
             while (true)
             {
+                string? userInput = Console.ReadLine();
                 char[] spl_chars = { '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '.', '/', ',', '<', '>', '?', '|', '{', '}', '[', ']', ';', ':', '|', };
                 if (String.IsNullOrEmpty(userInput) || userInput.IndexOfAny(spl_chars) >= 0)
                 {
@@ -234,9 +224,38 @@ namespace Notes
 
                     continue;
                 }
+                else if (userInput == null)
+                {
+                    Console.Write("Введите название файла заново: ");
+                    continue;
+                }
                 else
                 {
                     return userInput;
+                }
+            }
+        }
+
+        static private void DeleteNote()
+        {
+            while (true)
+            {
+                Console.Write("Введите название файла: ");
+                string? nameNote = CheckForbiddenChars();
+                string path = "C:\\Notes" + "\\" + nameNote + ".txt";
+                FileInfo fileInfo = new FileInfo(path);
+
+                if (fileInfo.Exists)
+                {
+                    Console.WriteLine("Файл удален");
+                    File.Delete(path);
+                    break;
+
+                }
+                else
+                {
+                    Console.WriteLine("Такого файла нет");
+                    continue;
                 }
             }
         }
