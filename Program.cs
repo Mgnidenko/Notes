@@ -22,16 +22,14 @@ namespace Notes
         static void Main(string[] args)
         {
 
-            //  Console.Write("Введите название файла: ");
-            //string? nameNote = Console.ReadLine();
-            // string filePath = "C:\\Notes" + "\\" + nameNote + ".txt";
+            CreateDirectory();
             string fileNotes = "C:\\Notes";
-            // var i = CheckForbiddenChars();
-            //Console.WriteLine(i);
 
-            // ReadNote("д", "C:\\Notes");
 
-            // break завершает лишь часть switch в то время как return полностью останавливает программу.
+
+            ///<summary>
+            /// break завершает лишь часть switch в то время как return полностью останавливает программу.
+            /// </summary>
             while (true)
             {
                 Console.WriteLine("Введите 1 чтобы создать заметку.\nВведите 2 чтобы вывести список заметок. \n" +
@@ -68,37 +66,64 @@ namespace Notes
             }
         }
 
-
-        // Функция проверяет существует такой файл или нет, если он существует то фунция выводит соответсвующий текст, если такого файла нет то
-        // функция его создает и создает внутри него такой же заголовок.
-        static private string CreateFile()
+        /// <summary>
+        /// Функция создает корневой каталог если его нет при запуске программы.
+        /// </summary>
+        static private void CreateDirectory()
         {
-            Console.Write("Введите название вашего файла: ");
-            string? nameNote = CheckForbiddenChars();
-            string filePath = "C:\\Notes" + "\\" + nameNote + ".txt";
+            string path = "C:\\Notes";
 
-
-            if (File.Exists(nameNote))
+            if (!File.Exists(path))
             {
-                Console.WriteLine("Такой файл уже существует. ");
-                return "1";
+                Directory.CreateDirectory(path);
             }
-            else
-            {
-
-                File.Create(filePath).Close();
-                File.WriteAllText(filePath, nameNote);
-                StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
-                writeFile.WriteLine(nameNote);
-                writeFile.Close();
-                Console.WriteLine($"Файл: {nameNote} создан.");
-                return "2";
-            }
-
 
         }
 
-        // Показывает файлы в каталоге
+        /// <summary>
+        /// Функция проверяет существует такой файл или нет, если он существует то функция выводит соответствующий текст, если такого файла нет то
+        /// функция его создает и создает внутри него такой же заголовок. А так же проверяет на уникальность название файла.
+        /// </summary>
+        /// <returns></returns>
+        static private void CreateFile()
+        {
+            Console.Write("Введите название вашего файла: ");
+            DirectoryInfo directoryInfo = new DirectoryInfo("C:\\Notes");
+            FileInfo[] allNotes = directoryInfo.GetFiles();
+            string? nameNote = " ";
+
+            while (true)
+            {
+                bool nameExists = allNotes.Any(oneNote => oneNote.Name.Substring(0, oneNote.Name.Length - 4).ToLower() == nameNote.ToLower());
+
+                if (nameExists)
+                {
+                    Console.WriteLine("Такой файл уже есть");
+                    nameNote = CheckForbiddenChars(); 
+                }
+                else
+                {
+                    Console.WriteLine("Имя уникально, можно продолжать.");
+                    break;
+                }
+            }
+            string filePath = "C:\\Notes" + "\\" + nameNote + ".txt";
+            File.Create(filePath).Close();
+            File.WriteAllText(filePath, nameNote);
+            StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
+
+            writeFile.WriteLine(nameNote);
+            writeFile.Close();
+            Console.WriteLine($"Файл: {nameNote} создан.");
+        }
+
+
+
+
+        /// <summary>
+        /// Функция показывает все файлы в каталоге Notes
+        /// </summary>
+        /// <param name="path"></param>
         static private void ShowNotes(string path)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
@@ -138,6 +163,7 @@ namespace Notes
                     textNote = readTextFromFile.ReadLine();
                 }
                 readTextFromFile.Close();
+                Console.WriteLine();
             }
             catch (Exception error)
             {
