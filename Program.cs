@@ -220,7 +220,7 @@ namespace Notes
         /// <summary>
         /// Функция на недопустимость символов в имени заметки, в содержимом заметки, и в любом вводе
         /// </summary>
-        /// <returns>ыыы</returns>
+        /// <returns></returns>
         static private string? CheckForbiddenChars()
         {
             string? userInput = Console.ReadLine();
