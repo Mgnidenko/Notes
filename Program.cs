@@ -9,52 +9,62 @@ namespace Notes
         static void Main(string[] args)
         {
             CreateDirectory();
-            
+
             ///<summary>
-            /// break завершает лишь часть switch в то время как return полностью останавливает программу.
+            ///  return полностью останавливает цикл, break переходит на новую итерацию.
             /// </summary>
             while (true)
             {
                 Console.WriteLine("Введите 1 чтобы создать заметку.\nВведите 2 чтобы вывести список заметок. \n" +
                     "Введите 3 чтобы прочитать заметку. \nВведите 4 для изменения заметки.\nВведите 5 для удаления заметки." +
                     "\nВведите 6 для выхода из приложения.");
-                var userNumber = GetNumberFromUser("");
+
+                int userNumber = GetNumberFromUser();
+                if (userNumber >= 1 && userNumber <= 6)
+                {
+                    Console.WriteLine();
+                }
+                else
+                {
+                    Console.WriteLine("Введите число из диапазона от 1 до 6");
+                    continue;
+                }
 
 
                 switch (userNumber)
                 {
-                    case (int)Lop.CreateNote:
+                    case (int)UserAction.CreateNote:
                         CreateFile();
                         break;
 
-                    case (int)Lop.ShowListNotes:
+                    case (int)UserAction.ShowListNotes:
                         ShowNotes(PATH);
                         break;
 
-                    case (int)Lop.ReadingNote:
+                    case (int)UserAction.ReadingNote:
                         ReadNote();
                         break;
 
-                    case (int)Lop.EditingNote:
+                    case (int)UserAction.EditingNote:
                         ChangeNote(PATH);
                         break;
 
-                    case (int)Lop.DeleteNote:
+                    case (int)UserAction.DeleteNote:
                         DeleteNote();
                         break;
 
-                    case (int)Lop.Exit:
+                    case (int)UserAction.Exit:
                         return;
                 }
             }
         }
 
         /// <summary>
-        /// Функция создает корневой каталог если его нет при запуске программы.
+        /// Создает корневой каталог если его нет при запуске программы.
         /// </summary>
         static private void CreateDirectory()
         {
-            if (!File.Exists(PATH))
+            if (!Directory.Exists(PATH))
             {
                 Directory.CreateDirectory(PATH);
             }
@@ -66,7 +76,6 @@ namespace Notes
         /// Если файл с таким именем уже существует(без учета регистра и расширения), пользователь должен ввести новое имя.
         /// После создания файла пользователь вводит заголовок, который записывается в файл как его содержимое.
         /// </summary>
-        /// <returns></returns>
         static private void CreateFile()
         {
             Console.Write("Введите название вашего файла: ");
@@ -81,7 +90,7 @@ namespace Notes
                 if (nameExists)
                 {
                     Console.WriteLine("Такой файл уже есть");
-                    nameNote = CheckForbiddenChars(); 
+                    nameNote = CheckForbiddenChars();
                 }
                 else
                 {
@@ -94,7 +103,7 @@ namespace Notes
             Console.Write("Введите первый заголовок: ");
             string? title = Console.ReadLine();
             File.WriteAllText(filePath, title);
-            
+
             Console.WriteLine($"Файл: {nameNote} создан.");
         }
 
@@ -102,9 +111,9 @@ namespace Notes
 
 
         /// <summary>
-        /// Функция показывает все файлы в каталоге Notes
+        /// Показывает все файлы в каталоге Notes.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="path"> Путь к каталогу. </param>
         static private void ShowNotes(string path)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
@@ -125,10 +134,10 @@ namespace Notes
         }
 
         /// <summary>
-        /// Функция чтения заметки
+        /// Пользователь вводит название файла который хочет прочитать.
         /// </summary>
-        /// <param name="nameNote"></param>
-        /// <param name="path"></param>
+        /// <param name="nameNote"> Название файла. </param>
+        /// <param name="path"> Путь к файлу. </param>
         static private void ReadNote()
         {
             Console.Write("Введите название файла который хотите прочитать: ");
@@ -158,18 +167,16 @@ namespace Notes
 
 
         /// <summary>
-        /// Функция выводит содержимое файла и если пользователь хочет то может изменить содержимое
+        /// Выводит содержимое файла и если пользователь хочет то может изменить содержимое.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="path"></param>
+        /// <param name="name"> Название файла. </param>
+        /// <param name="path"> Путь к файлу. </param>
         static private void ChangeNote(string path)
         {
 
             Console.Write("Введите название вашего файла: ");
             string? name = CheckForbiddenChars();
             string notePath = path + "\\" + name + ".txt";
-
-
 
             TextReader reader = new StreamReader(notePath);
             string contents = reader.ReadToEnd();
@@ -214,12 +221,11 @@ namespace Notes
 
 
         /// <summary>
-        /// Функция на недопустимость символов в названии заметки.
+        /// Проверка на недопустимость символов в названии файла.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Возвращает проверенное название.</returns>
         static private string? CheckForbiddenChars()
         {
-
             while (true)
             {
                 string? userInput = Console.ReadLine();
@@ -243,6 +249,9 @@ namespace Notes
             }
         }
 
+        /// <summary>
+        /// Полностью удаляет выбранный файл.
+        /// </summary>
         static private void DeleteNote()
         {
             while (true)
@@ -267,7 +276,7 @@ namespace Notes
             }
         }
 
-        enum Lop
+        enum UserAction
         {
             CreateNote = 1,
             ShowListNotes,
@@ -277,7 +286,12 @@ namespace Notes
             Exit
         }
 
-        private static int GetNumberFromUser(string message)
+        /// <summary>
+        /// Получает пользовательский ввод числа. Преобразует его в int и возвращает.
+        /// Если пользователь ввёл не число, то цикл продолжит запрашивать ввод.
+        /// </summary>
+        /// <returns>Возвращает преобразованное из пользовательского ввода целое число.</returns>
+        private static int GetNumberFromUser()
         {
             while (true)
             {
