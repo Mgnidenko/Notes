@@ -6,6 +6,7 @@ namespace Notes
     
     internal class Program
     {
+        const string PATH = "C:\\Notes";
         static void Main(string[] args)
         {
 
@@ -34,7 +35,7 @@ namespace Notes
                         break;
 
                     case (int)Lop.ShowListNotes:
-                        ShowNotes(fileNotes);
+                        ShowNotes(PATH);
                         break;
 
                     case (int)Lop.ReadingNote:
@@ -54,31 +55,35 @@ namespace Notes
 
         // Функция проверяет существует такой файл или нет, если он существует то фунция выводит соответсвующий текст, если такого файла нет то
         // функция его создает и создает внутри него такой же заголовок.
-        static private string CreateFile()
+        static private void CreateFile()
         {
             Console.Write("Введите название вашего файла: ");
+            DirectoryInfo directoryInfo = new DirectoryInfo("C:\\Notes");
+            FileInfo[] allNotes = directoryInfo.GetFiles();
             string? nameNote = CheckForbiddenChars();
-            string filePath = "C:\\Notes" + "\\" + nameNote + ".txt";
 
-
-            if (File.Exists(nameNote))
+            while (true)
             {
-                Console.WriteLine("Такой файл уже существует. ");
-                return "1";
+                bool nameExists = allNotes.Any(oneNote => oneNote.Name.Substring(0, oneNote.Name.Length - 4).ToLower() == nameNote.ToLower());
+
+                if (nameExists)
+                {
+                    Console.WriteLine("Такой файл уже есть");
+                    nameNote = CheckForbiddenChars();
+                }
+                else
+                {
+                    Console.WriteLine("Имя уникально, можно продолжать.");
+                    break;
+                }
             }
-            else
-            {
+            string filePath = PATH + "\\" + nameNote + ".txt";
+            File.Create(filePath).Close();
+            Console.Write("Введите первый заголовок: ");
+            string? title = Console.ReadLine();
+            File.WriteAllText(filePath, title);
 
-                File.Create(filePath).Close();
-                File.WriteAllText(filePath, nameNote);
-                StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
-                writeFile.WriteLine(nameNote);
-                writeFile.Close();
-                Console.WriteLine($"Файл: {nameNote} создан.");
-                return "2";
-            }
-
-
+            Console.WriteLine($"Файл: {nameNote} создан.");
         }
 
         // Показывает файлы в каталоге
