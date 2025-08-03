@@ -3,30 +3,13 @@ using System.Text;
 
 namespace Notes
 {
-    /*
-     * доделать проверку на недопустимые символы
-     * сделать конвртацию строк в инт
-     * структурировать код под enum
-     * 
-     * 1 разобратся в этом коде
-     * 2 еслие нет функции создания заметки то создать ее
-     * 3 добавить в createNote часть кода котороя будет писать первый заголовок в созданном файле
-     * 
-     * 
-     * 
-     * 
-     * 
-     */
     internal class Program
     {
+        const string PATH = "C:\\Notes";
         static void Main(string[] args)
         {
-
             CreateDirectory();
-            string fileNotes = "C:\\Notes";
-
-
-
+            
             ///<summary>
             /// break завершает лишь часть switch в то время как return полностью останавливает программу.
             /// </summary>
@@ -45,7 +28,7 @@ namespace Notes
                         break;
 
                     case (int)Lop.ShowListNotes:
-                        ShowNotes(fileNotes);
+                        ShowNotes(PATH);
                         break;
 
                     case (int)Lop.ReadingNote:
@@ -53,7 +36,7 @@ namespace Notes
                         break;
 
                     case (int)Lop.EditingNote:
-                        ChangeNote(fileNotes);
+                        ChangeNote(PATH);
                         break;
 
                     case (int)Lop.DeleteNote:
@@ -71,18 +54,17 @@ namespace Notes
         /// </summary>
         static private void CreateDirectory()
         {
-            string path = "C:\\Notes";
-
-            if (!File.Exists(path))
+            if (!File.Exists(PATH))
             {
-                Directory.CreateDirectory(path);
+                Directory.CreateDirectory(PATH);
             }
 
         }
 
         /// <summary>
-        /// Функция проверяет существует такой файл или нет, если он существует то функция выводит соответствующий текст, если такого файла нет то
-        /// функция его создает и создает внутри него такой же заголовок. А так же проверяет на уникальность название файла.
+        /// Создает новый текстовый файл в папке "C:\\Notes" с уникальным именем, введенным  пользователем.
+        /// Если файл с таким именем уже существует(без учета регистра и расширения), пользователь должен ввести новое имя.
+        /// После создания файла пользователь вводит заголовок, который записывается в файл как его содержимое.
         /// </summary>
         /// <returns></returns>
         static private void CreateFile()
@@ -90,7 +72,7 @@ namespace Notes
             Console.Write("Введите название вашего файла: ");
             DirectoryInfo directoryInfo = new DirectoryInfo("C:\\Notes");
             FileInfo[] allNotes = directoryInfo.GetFiles();
-            string? nameNote = " ";
+            string? nameNote = CheckForbiddenChars();
 
             while (true)
             {
@@ -107,13 +89,12 @@ namespace Notes
                     break;
                 }
             }
-            string filePath = "C:\\Notes" + "\\" + nameNote + ".txt";
+            string filePath = PATH + "\\" + nameNote + ".txt";
             File.Create(filePath).Close();
-            File.WriteAllText(filePath, nameNote);
-            StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
-
-            writeFile.WriteLine(nameNote);
-            writeFile.Close();
+            Console.Write("Введите первый заголовок: ");
+            string? title = Console.ReadLine();
+            File.WriteAllText(filePath, title);
+            
             Console.WriteLine($"Файл: {nameNote} создан.");
         }
 
@@ -155,7 +136,7 @@ namespace Notes
             string? textNote = " ";
             try
             {
-                StreamReader readTextFromFile = new StreamReader("C:\\Notes\\" + nameNote + ".txt");
+                StreamReader readTextFromFile = new StreamReader(PATH + "\\" + nameNote + ".txt");
 
                 while (textNote is not null)
                 {
@@ -233,7 +214,7 @@ namespace Notes
 
 
         /// <summary>
-        /// Функция на недопустимость символов в имени заметки, в содержимом заметки, и в любом вводе
+        /// Функция на недопустимость символов в названии заметки.
         /// </summary>
         /// <returns></returns>
         static private string? CheckForbiddenChars()
@@ -268,7 +249,7 @@ namespace Notes
             {
                 Console.Write("Введите название файла: ");
                 string? nameNote = CheckForbiddenChars();
-                string path = "C:\\Notes" + "\\" + nameNote + ".txt";
+                string path = PATH + "\\" + nameNote + ".txt";
                 FileInfo fileInfo = new FileInfo(path);
 
                 if (fileInfo.Exists)
