@@ -45,7 +45,7 @@ namespace Notes
                     case (int)Lop.CreateNote:
                         CreateFile();
                         break;
-                    
+
                     case (int)Lop.ShowListNotes:
                         ShowNotes(fileNotes);
                         break;
@@ -81,7 +81,7 @@ namespace Notes
             }
             else
             {
-                
+
                 File.Create(filePath).Close();
                 File.WriteAllText(filePath, nameNote);
                 StreamWriter writeFile = new StreamWriter(filePath, false, Encoding.Unicode);
@@ -220,7 +220,7 @@ namespace Notes
         /// <summary>
         /// Функция на недопустимость символов в имени заметки, в содержимом заметки, и в любом вводе
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ыыы</returns>
         static private string? CheckForbiddenChars()
         {
             string? userInput = Console.ReadLine();
