@@ -12,7 +12,7 @@ namespace Notes
 
             ///<summary>
             ///  return полностью останавливает цикл, break переходит на новую итерацию.
-            /// </summary>
+            /// </summary>а
             while (true)
             {
                 Console.WriteLine("Введите 1 чтобы создать заметку.\nВведите 2 чтобы вывести список заметок. \n" +
